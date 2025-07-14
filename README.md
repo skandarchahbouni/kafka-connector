@@ -210,29 +210,18 @@ Connector.Timeout=15
 
 The following settings are used for the Kafka connector producer.
 
-#### Kafka.URL
+#### Kafka.Brokers
 
-Kafka broker URL or DNS name.
+Comma-separated list of Kafka brokers in the format host:port.
 
-Default value: *localhost*
-
-Example:
-
-```conf
-Kafka.URL=127.0.0.1
-```
-
-#### Kafka.Port
-
-Kafka broker port.
-
-Default value: *9093*
+Default value: *localhost:9092*
 
 Example:
 
 ```conf
-Kafka.Port=9093
+Kafka.Brokers=broker2:9092,broker1:9092
 ```
+
 
 #### Kafka.Events
 
