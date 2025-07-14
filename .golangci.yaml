@@ -1,0 +1,255 @@
+# for golanci-lint version 1.55.2
+# everything should be sorted in alphabetical order
+
+run:
+  timeout: 1m
+  allow-parallel-runners: true
+
+linters-settings:
+  # declaration order
+  decorder:
+    dec-order:
+      - const
+      - var
+      - type
+      - func
+    disable-dec-order-check: false
+    disable-init-func-first-check: false
+
+  # unchecked errors
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+
+  gocritic:
+    disabled-checks:
+      - unnamedResult
+      # cool idea, quite annoying in practice as nolint directive offten
+      # requires weird placements to take effect
+      - whyNoLint
+    enabled-tags: # enable all
+      - diagnostic
+      - style
+      - performance
+      - experimental
+      - opinionated
+
+  # cyclomatic complexity
+  gocyclo:
+    min-complexity: 10
+
+  goheader:
+    template: |-
+      ** Copyright (C) 2001-2025 Zabbix SIA
+      **
+      ** This program is free software: you can redistribute it and/or modify it under the terms of
+      ** the GNU Affero General Public License as published by the Free Software Foundation, version 3.
+      **
+      ** This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+      ** without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+      ** See the GNU Affero General Public License for more details.
+      **
+      ** You should have received a copy of the GNU Affero General Public License along with this program.
+      ** If not, see <https://www.gnu.org/licenses/>.
+      *
+
+  # import block list
+  gomodguard:
+    blocked:
+      modules:
+        - io/ioutil:
+      local_replace_directives: false
+
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment
+
+  # reports big interfaces
+  interfacebloat:
+    max: 6
+
+  lll:
+    line-length: 120
+    tab-width: 4
+
+  makezero:
+    always: true
+
+  revive:
+    enable-all-rules: true
+    severity: error
+    rules:
+      - name: argument-limit
+        arguments:
+          - 5
+
+      - name: comment-spacings
+        arguments:
+          - nolint # allow //nolint:... (its a directive)
+
+      # comment for exported
+      - name: exported
+        arguments:
+          - checkPrivateReceivers
+          - disableStutteringCheck
+
+      - name: function-result-limit
+        arguments:
+          - 4
+
+      - name: max-public-structs
+        arguments:
+          - 5
+
+      # disabled
+
+      # like gomnd, annoying#
+      - name: add-constant
+        disabled: true
+      - name: banned-characters # useless, as every char needs to be configured
+        disabled: true
+      # common to have a public faceing signature and internal uglier signature
+      # Walk and walk (for example)
+      - name: confusing-naming
+        disabled: true
+      - name: confusing-results
+        disabled: true
+      # duplicate
+      - name: cyclomatic
+        disabled: true
+      # duplicate
+      - name: file-header
+        disabled: true
+      # cool idea, but warning about ever bool param is not acceptable
+      - name: flag-parameter
+        disabled: true
+      # cyclomatic complexety checks are enough
+      - name: function-length
+        disabled: true
+      # duplicate
+      - name: line-length-limit
+        disabled: true
+      # duplicate
+      - name: unhandled-error
+        disabled: true
+      # duplicate, + we have goheader
+      - name: package-comments
+        disabled: true
+
+  stylecheck:
+    checks:
+      - all
+      - -ST1000 # Incorrect or missing package comment
+      - -ST1003 # Poorly chosen identifier
+    dot-import-whitelist: []
+    http-status-code-whitelist: []
+
+  # tag order
+  tagalign:
+    align: false # could be true if https://github.com/momaek/formattag is used.
+    order:
+      - yaml
+      - json
+      - toml
+      - mapstructure
+      - binding
+      - validate
+
+  # long, flat, ribbon-shaped pasta
+  # also
+  # struct tag naming convention checker
+  tagliatelle:
+    case:
+      rules:
+        json: camel
+        yaml: camel
+        xml: camel
+        bson: camel
+        avro: snake
+        mapstructure: kebab
+        env: upperSnake
+        envconfig: upperSnake
+      
+  wrapcheck:
+    ignoreSigs:
+      - .Errorf(
+      - errors.New(
+      - errors.Unwrap(
+      - .Wrap(
+      - .Wrapf(
+      - .WithMessage(
+      - .WithMessagef(
+      - .WithStack(
+      - errs.New(
+
+linters:
+  enable-all: true
+  disable:
+    # gomodguard is better
+    - depguard
+
+    # always check marshal errors
+    - errchkjson
+
+    # triggers on switches with default case.
+    - exhaustive
+
+    # allow use go default zero values .
+    - exhaustruct
+
+    # cyclomatic complexity checkers already enforce limit on function length.
+    # no need to count lines.
+    - funlen
+
+    # conflicts with gci and goimports. the formatter should still be used, only
+    # lint can't enforce it.
+    - gofumpt
+
+    # conflicts with gofumpt and gci. the tool still should be used but gci
+    # needs be the last formatter.
+    - goimports
+
+    # const one = 1 - just no
+    - gomnd
+
+    # don't use shorthand ifs
+    - ifshort
+
+    # revive warns about this
+    - nakedret
+
+    # current unit test situation is bad enough as is. no need to introduce new
+    # unit testing practices.
+    - testpackage
+
+    # having one length vars is fine.
+    - varnamelen
+
+    # deprecated
+    - deadcode
+    - exhaustivestruct
+    - golint
+    - ifshort
+    - interfacer
+    - maligned
+    - nosnakecase
+    - scopelint
+    - structcheck
+    - varcheck
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0 # unlimited
+  max-same-issues: 0 # unlimited
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - goerr113
+        - wrapcheck
+        - gocritic
+        - revive
+
+severity:
+  default-severity: error
