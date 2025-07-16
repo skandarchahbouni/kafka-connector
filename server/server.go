@@ -412,6 +412,31 @@ func decodeEvents(r io.Reader) ([]event, error) {
 	return events, nil
 }
 
+func filterItemData(rawJSON string, fieldsToKeep []string) (string, error) {
+	// Unmarshal into a generic map
+	var dataMap map[string]interface{}
+	err := json.Unmarshal([]byte(rawJSON), &dataMap)
+	if err != nil {
+		return "", err
+	}
+
+	// Create a new map with only wanted fields
+	filtered := make(map[string]interface{})
+	for _, field := range fieldsToKeep {
+		if val, ok := dataMap[field]; ok {
+			filtered[field] = val
+		}
+	}
+
+	// Marshal filtered map back to JSON string
+	filteredJSON, err := json.Marshal(filtered)
+	if err != nil {
+		return "", err
+	}
+
+	return string(filteredJSON), nil
+}
+
 func decodeItems(r io.Reader) ([]item, error) {
 	var (
 		d     any
@@ -441,6 +466,17 @@ func decodeItems(r io.Reader) ([]item, error) {
 		i.Data = string(b)
 
 		log.Tracef("Received item with ID %d", i.ItemID)
+
+
+		fieldsToKeep := []string{"itemid", "name", "value"}  // fields you want to preserve
+
+		filteredData, err := filterItemData(i.Data, fieldsToKeep)
+		if err != nil {
+			log.Errf("failed to filter item data: %s", err)
+			// handle error, maybe skip this item or return error
+		} else {
+			i.Data = filteredData
+		}
 
 		items = append(items, i)
 	}
