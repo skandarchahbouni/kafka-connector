@@ -468,7 +468,7 @@ func decodeItems(r io.Reader) ([]item, error) {
 		log.Tracef("Received item with ID %d", i.ItemID)
 
 
-		fieldsToKeep := []string{"itemid", "name", "value", "clock", "ns"}  // fields you want to preserve
+		fieldsToKeep := []string{"itemid", "name", "value", "clock", "ns", "host"}  // fields you want to preserve
 
 		filteredData, err := filterItemData(i.Data, fieldsToKeep)
 		if err != nil {
